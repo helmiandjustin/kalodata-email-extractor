@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: kalodata-email-finder
-    runtime: python
-    plan: free
-    buildCommand: ""
-    startCommand: python web_app.py
