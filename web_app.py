@@ -13,8 +13,8 @@ from urllib.parse import parse_qs
 
 from kalodata_email_finder import clean_username, run_batch_scrape
 
-HOST = "127.0.0.1"
-PORT = 8010
+HOST = os.environ.get("HOST", "127.0.0.1")
+PORT = int(os.environ.get("PORT", "8010"))
 SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "chocodata_settings.json")
 LAST_EXPORT = b""
 JOBS = {}
