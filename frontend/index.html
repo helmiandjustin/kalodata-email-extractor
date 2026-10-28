@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kalodata Email Extractor</title>
+  <style>
+    body{font:15px system-ui;margin:0;background:#f5f7fb;color:#172033}main{max-width:760px;margin:40px auto;padding:24px;background:#fff;border-radius:14px;box-shadow:0 8px 30px #17203312}h1{margin-top:0}label{display:block;font-weight:600;margin:18px 0 7px}textarea{box-sizing:border-box;width:100%;min-height:180px;padding:12px;border:1px solid #ccd3df;border-radius:8px;font:inherit}button{margin-top:20px;background:#1769e0;color:#fff;border:0;border-radius:8px;padding:12px 18px;font-weight:700;cursor:pointer}button:disabled{opacity:.5}.hint{color:#637087;font-size:13px}.error{color:#991b1b}.result{white-space:pre-wrap}.hidden{display:none}progress{width:100%}
+  </style>
+</head>
+<body><main>
+  <h1>Kalodata Email Extractor</h1>
+  <p class="hint">TikTok • country: US</p>
+  <form id="form">
+    <label>Mode</label>
+    <label><input name="mode" value="personal" type="radio" checked> Personal / Barter</label>
+    <label><input name="mode" value="agency" type="radio"> Agency</label>
+    <label><input name="mode" value="all" type="radio"> All</label>
+    <label>Username TikTok</label>
+    <textarea id="usernames" required placeholder="username1\nusername2"></textarea>
+    <button id="start">Mulai cari</button>
+  </form>
+  <section id="progress" class="hidden">
+    <h2>Progress</h2><p id="progressText"></p><p id="active" class="hint"></p><progress id="bar" max="100" value="0"></progress>
+    <p id="error" class="error"></p><button id="copy" class="hidden">Copy hasil</button><button id="csv" class="hidden">Export Excel</button><pre id="result" class="result"></pre>
+  </section>
+</main>
+<script>
+// Replace this URL after deploying backend on Arenhost.
+const API_BASE = "https://REPLACE-WITH-ARENHOST-URL";
+const form=document.querySelector('#form'), progress=document.querySelector('#progress'), start=document.querySelector('#start');
+const text=document.querySelector('#usernames'), mode=()=>document.querySelector('input[name="mode"]:checked').value;
+let rows=[];
+form.addEventListener('submit',async event=>{event.preventDefault();start.disabled=true;progress.classList.remove('hidden');
+  const usernames=text.value.split(/[\n,\t]+/).map(x=>x.trim()).filter(Boolean); const response=await fetch(API_BASE+'/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames,mode:mode()})});
+  const data=await response.json(); if(!response.ok){document.querySelector('#error').textContent=data.error||'Gagal';return;} poll(data.job_id);
+});
+async function poll(id){const response=await fetch(API_BASE+'/api/status?id='+encodeURIComponent(id));const data=await response.json();document.querySelector('#progressText').textContent=`${data.done}/${data.total} selesai (${data.percent}%)`;document.querySelector('#active').textContent=data.active.length?'Sedang dicari: '+data.active.join(', '):'';document.querySelector('#bar').value=data.percent;
+  if(data.status==='error'){document.querySelector('#error').textContent=data.error;return;} if(data.status!=='done'){setTimeout(()=>poll(id),500);return;} const result=await fetch(API_BASE+'/api/results?id='+encodeURIComponent(id));rows=(await result.json()).results;const copyText='Username TikTok\tEmail\n'+rows.map(x=>`${x.username}\t${x.email||''}`).join('\n');document.querySelector('#result').textContent=rows.map(x=>`${x.username} | ${x.email||'Not Found'}`).join('\n');const copy=document.querySelector('#copy'),csv=document.querySelector('#csv');copy.classList.remove('hidden');csv.classList.remove('hidden');copy.onclick=async()=>{await navigator.clipboard.writeText(copyText);copy.textContent='Copied ✓'};csv.onclick=()=>{const blob=new Blob(['\ufeff'+copyText.replaceAll('\t',',')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hasil_kol_email.csv';a.click()};
+}
+</script></body></html>
