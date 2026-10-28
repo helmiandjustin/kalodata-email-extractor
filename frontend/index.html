@@ -12,6 +12,8 @@
   <h1>Kalodata Email Extractor</h1>
   <p class="hint">TikTok • country: US</p>
   <form id="form">
+    <label>Chocodata API key</label>
+    <input id="apiKey" type="password" required autocomplete="off" placeholder="cd_live_..." style="box-sizing:border-box;width:100%;padding:12px;border:1px solid #ccd3df;border-radius:8px;font:inherit">
     <label>Mode</label>
     <label><input name="mode" value="personal" type="radio" checked> Personal / Barter</label>
     <label><input name="mode" value="agency" type="radio"> Agency</label>
@@ -32,7 +34,7 @@ const form=document.querySelector('#form'), progress=document.querySelector('#pr
 const text=document.querySelector('#usernames'), mode=()=>document.querySelector('input[name="mode"]:checked').value;
 let rows=[];
 form.addEventListener('submit',async event=>{event.preventDefault();start.disabled=true;progress.classList.remove('hidden');
-  const usernames=text.value.split(/[\n,\t]+/).map(x=>x.trim()).filter(Boolean); const response=await fetch(API_BASE+'/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames,mode:mode()})});
+  const usernames=text.value.split(/[\n,\t]+/).map(x=>x.trim()).filter(Boolean); const api_key=document.querySelector('#apiKey').value.trim(); const response=await fetch(API_BASE+'/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({api_key,usernames,mode:mode()})});
   const data=await response.json(); if(!response.ok){document.querySelector('#error').textContent=data.error||'Gagal';return;} poll(data.job_id);
 });
 async function poll(id){const response=await fetch(API_BASE+'/api/status?id='+encodeURIComponent(id));const data=await response.json();document.querySelector('#progressText').textContent=`${data.done}/${data.total} selesai (${data.percent}%)`;document.querySelector('#active').textContent=data.active.length?'Sedang dicari: '+data.active.join(', '):'';document.querySelector('#bar').value=data.percent;

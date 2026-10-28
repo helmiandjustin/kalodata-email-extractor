@@ -36,12 +36,12 @@ def health():
 def start():
     if request.method == "OPTIONS":
         return ("", HTTPStatus.NO_CONTENT)
-    if not os.environ.get("CHOCODATA_API_KEY", "").strip():
-        return jsonify(error="CHOCODATA_API_KEY belum diatur di hosting."), HTTPStatus.INTERNAL_SERVER_ERROR
-
     payload = request.get_json(silent=True) or {}
+    api_key = str(payload.get("api_key", "")).strip() or os.environ.get("CHOCODATA_API_KEY", "").strip()
     usernames = payload.get("usernames", [])
     mode = payload.get("mode", "personal")
+    if not api_key:
+        return jsonify(error="Chocodata API key wajib diisi."), HTTPStatus.BAD_REQUEST
     if not isinstance(usernames, list) or not usernames:
         return jsonify(error="Username TikTok wajib diisi."), HTTPStatus.BAD_REQUEST
     if mode not in {"personal", "agency", "all"}:
@@ -70,7 +70,7 @@ def start():
                 targets,
                 workers=5,
                 barter_only=mode == "personal",
-                api_key=os.environ["CHOCODATA_API_KEY"],
+                api_key=api_key,
                 progress_callback=progress,
             )
             if mode == "agency":
