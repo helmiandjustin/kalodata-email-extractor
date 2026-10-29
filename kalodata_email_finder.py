@@ -207,8 +207,8 @@ def run_batch_scrape(targets: List[str], workers: int = 5, barter_only: bool = F
                      api_key: Optional[str] = None, progress_callback=None) -> List[Dict[str, Any]]:
     total = len(targets)
     mode_str = "HANYA BARTER (Gmail/iCloud/Outlook/Yahoo)" if barter_only else "SEMUA EMAIL (Termasuk Agensi)"
-    print(f"\n🚀 Memulai pencarian via Chocodata untuk {total} kreator...")
-    print(f"🎯 Mode: {mode_str}")
+    print(f"\n[START] Memulai pencarian via Chocodata untuk {total} kreator...")
+    print(f"[MODE] {mode_str}")
     print(f"{'No.':<4} | {'TikTok Username':<22} | {'Email Address':<36} | {'Tipe Inbox'}")
     print("-" * 88)
 
@@ -243,7 +243,7 @@ def run_batch_scrape(targets: List[str], workers: int = 5, barter_only: bool = F
             email_str = res["email"] if res["email"] else "Not Found"
             if res["email"]:
                 found_count += 1
-                type_badge = "✓ Barter" if res.get("is_barter") else "• Agency/Paid"
+                type_badge = "[OK] Barter" if res.get("is_barter") else "- Agency/Paid"
             else:
                 type_badge = f"- ({res.get('status')})"
 
@@ -251,7 +251,7 @@ def run_batch_scrape(targets: List[str], workers: int = 5, barter_only: bool = F
 
             if res.get("status") == "auth_error" and not auth_warned:
                 auth_warned = True
-                print("⚠️  API key ditolak (401/403). Cek key atau sisa kredit Chocodata.")
+                print("[WARN] API key ditolak (401/403). Cek key atau sisa kredit Chocodata.")
 
             time.sleep(0.2 + random.random() * 0.2)
 
@@ -259,7 +259,7 @@ def run_batch_scrape(targets: List[str], workers: int = 5, barter_only: bool = F
     pct = (found_count / total * 100) if total else 0
 
     print("\n" + "=" * 88)
-    print(f"✓ Selesai batch ini: {found_count}/{total} email ditemukan ({pct:.1f}%)")
+    print(f"[OK] Selesai batch ini: {found_count}/{total} email ditemukan ({pct:.1f}%)")
     print("=" * 88)
     return ordered
 
@@ -291,10 +291,10 @@ def main():
     # Cek 1 akun via command line
     if args.input_target and not os.path.exists(args.input_target):
         clean_u = clean_username(args.input_target)
-        print(f"\n🔍 Mencari email untuk: @{clean_u} (via Chocodata)...")
+        print(f"\n[SEARCH] Mencari email untuk: @{clean_u} (via Chocodata)...")
         res = scrape_creator(clean_u, barter_only=args.barter)
         email_out = res["email"] if res["email"] else "Not Found"
-        print(f"\n➡️  Hasil: {res['username']} | {email_out}")
+        print(f"\n[RESULT] {res['username']} | {email_out}")
         print(f"    Status     : {res.get('status')}")
         print(f"    Tipe Inbox : {res.get('inbox_type')}")
         print(f"    Cocok Barter: {'YA (Direct Inbox)' if res.get('is_barter') else 'TIDAK (Agency/Paid/None)'}")
@@ -327,7 +327,7 @@ def main():
         else:
             print("\n" + "=" * 76)
             found_so_far = sum(1 for r in all_results if r["email"])
-            print(f"📊 DATA TERSIMPAN: {len(all_results)} kreator | {found_so_far} email ditemukan")
+            print(f"[DATA] DATA TERSIMPAN: {len(all_results)} kreator | {found_so_far} email ditemukan")
             print("=" * 76)
             print("Pilihan:")
             print("  [1] Simpan Semua Data Sekarang (Format Excel Rapi)")
@@ -361,7 +361,7 @@ def main():
                 print(f"[!] File '{fname}' tidak ditemukan!")
                 continue
         else:
-            print("\n📋 Silakan PASTE daftar username TikTok di bawah ini.")
+            print("\n[INPUT] Silakan PASTE daftar username TikTok di bawah ini.")
             print("   (Bisa copy satu kolom dari Excel lalu Paste di sini)")
             print("   (Jika sudah selesai paste, tekan ENTER 2 KALI):")
             print("-" * 50)
@@ -406,11 +406,11 @@ def main():
     pct_final = (found_final / len(all_results) * 100) if all_results else 0
 
     print("\n" + "=" * 80)
-    print("🎉 SELURUH DATA BERHASIL DISIMPAN!")
-    print(f"   • Total Kreator Terekstrak : {len(all_results)}")
-    print(f"   • Total Email Ditemukan    : {found_final} ({pct_final:.1f}%)")
-    print(f"   • File Excel CSV Rapi      : {os.path.abspath(args.output)}")
-    print(f"   • File TXT (Pipe)          : {os.path.abspath(args.txt)}")
+    print("[DONE] SELURUH DATA BERHASIL DISIMPAN!")
+    print(f"   - Total Kreator Terekstrak : {len(all_results)}")
+    print(f"   - Total Email Ditemukan    : {found_final} ({pct_final:.1f}%)")
+    print(f"   - File Excel CSV Rapi      : {os.path.abspath(args.output)}")
+    print(f"   - File TXT (Pipe)          : {os.path.abspath(args.txt)}")
     print("=" * 80)
 
     print("\nTekan Enter untuk keluar...")
