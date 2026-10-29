@@ -9,6 +9,7 @@
 7. Install dependencies: `pip install -r requirements.txt`.
 8. Add environment variable:
    - `FRONTEND_ORIGIN`: `https://helmiandjustin.github.io`.
+   - `SCRAPE_WORKERS`: `8` (use `5` if Chocodata returns many `429` responses).
 9. Set the frontend `API_BASE` in `frontend/index.html` to the backend URL.
 10. Restart the Python app after changing files.
 

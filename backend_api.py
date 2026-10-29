@@ -68,7 +68,7 @@ def start():
         try:
             results = run_batch_scrape(
                 targets,
-                workers=5,
+                workers=int(os.environ.get("SCRAPE_WORKERS", "8")),
                 barter_only=mode == "personal",
                 api_key=api_key,
                 progress_callback=progress,

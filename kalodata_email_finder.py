@@ -253,8 +253,6 @@ def run_batch_scrape(targets: List[str], workers: int = 5, barter_only: bool = F
                 auth_warned = True
                 print("[WARN] API key ditolak (401/403). Cek key atau sisa kredit Chocodata.")
 
-            time.sleep(0.2 + random.random() * 0.2)
-
     ordered = [results_map[i] for i in range(total)]
     pct = (found_count / total * 100) if total else 0
 
